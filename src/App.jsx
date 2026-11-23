@@ -27,6 +27,10 @@ function App() {
   const [mobileNav, setMobileNav] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [notice, setNotice] = useState('Bienvenue dans ton espace de création.');
+  const [assistantStep, setAssistantStep] = useState(0);
+  const [messages, setMessages] = useState([
+    { role: 'assistant', text: 'Salut ! Je suis NEXUS. Je vais t’aider à transformer ton idée en projet concret. Pour commencer, décris-moi ton idée, même si elle est encore floue.' }
+  ]);
 
   const chooseAction = (title) => {
     setActive(title);
@@ -35,9 +39,36 @@ function App() {
 
   const submitPrompt = (e) => {
     e.preventDefault();
-    if (!prompt.trim()) return;
-    setNotice('Ton objectif a été noté : « ' + prompt.trim() + ' ». La connexion à un moteur IA sera ajoutée dans une prochaine étape.');
+    const answer = prompt.trim();
+    if (!answer) return;
+
+    const nextMessages = [...messages, { role: 'user', text: answer }];
+    let reply = '';
+
+    if (assistantStep === 0) {
+      reply = 'Très bien, on part de cette idée. À qui aimerais-tu vendre ton produit ou ton service ? Décris ton client idéal en quelques mots.';
+    } else if (assistantStep === 1) {
+      reply = 'Compris. Quel besoin ou quel problème précis veux-tu résoudre pour ces personnes ?';
+    } else if (assistantStep === 2) {
+      reply = 'Dernière question pour préparer une première feuille de route : quel budget peux-tu consacrer au démarrage ? Tu peux répondre « 0 € ».';
+    } else {
+      const collected = nextMessages.filter((message) => message.role === 'user').map((message) => message.text);
+      reply = 'Voici ton premier brief de projet :\\n\\n• Idée : ' + (collected[0] || 'À préciser') +
+        '\\n• Clients visés : ' + (collected[1] || 'À préciser') +
+        '\\n• Besoin à résoudre : ' + (collected[2] || 'À préciser') +
+        '\\n• Budget de départ : ' + answer +
+        '\\n\\nTes prochaines étapes :\\n1. Vérifier que des personnes rencontrent réellement ce problème.\\n2. Interroger quelques clients potentiels.\\n3. Comparer les solutions déjà disponibles.\\n4. Tester une version très simple avant de dépenser de l’argent.\\n\\nCe brief est une première organisation guidée, pas une étude de marché vérifiée. Tu peux recommencer avec le bouton « Recommencer ».';
+    }
+
+    nextMessages.push({ role: 'assistant', text: reply });
+    setMessages(nextMessages);
+    setAssistantStep((current) => current < 3 ? current + 1 : 4);
     setPrompt('');
+  };
+
+  const restartAssistant = () => {
+    setAssistantStep(0);
+    setMessages([{ role: 'assistant', text: 'On recommence ! Décris-moi ton idée de business, même si elle est encore floue.' }]);
   };
 
   return (
@@ -125,9 +156,24 @@ function App() {
           <section className="bottom-grid">
             <article className="panel assistant-panel">
               <div className="panel-heading"><div className="panel-icon"><WandSparkles size={18}/></div><div><h3>Parle à NEXUS</h3><p>Décris ce que tu souhaites construire.</p></div><span className="beta-tag">APERÇU</span></div>
+              <div className="guide-note"><Sparkles size={13}/> Assistant guidé — première version sans connexion à un modèle IA.</div>
+              <div className="chat-messages" aria-live="polite">
+                {messages.map((message, index) => (
+                  <div className={'chat-message ' + message.role} key={index}>
+                    <b>{message.role === 'assistant' ? 'NEXUS' : 'Toi'}</b>
+                    <p>{message.text}</p>
+                  </div>
+                ))}
+              </div>
               <form className="prompt-box" onSubmit={submitPrompt}>
-                <textarea value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Ex. : Je veux lancer un business en ligne avec 0 € de budget..." rows={2}/>
-                <div className="prompt-footer"><span><Sparkles size={13}/> Assistant IA — connexion à venir</span><button type="submit" disabled={!prompt.trim()}>Envoyer <ArrowUpRight size={15}/></button></div>
+                <textarea value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Écris ta réponse ici..." rows={2}/>
+                <div className="prompt-footer">
+                  <span><Sparkles size={13}/> {assistantStep >= 4 ? 'Brief terminé' : 'Étape ' + (assistantStep + 1) + ' sur 4'}</span>
+                  <div className="assistant-actions">
+                    {assistantStep >= 4 && <button type="button" className="restart-button" onClick={restartAssistant}>Recommencer</button>}
+                    <button type="submit" disabled={!prompt.trim() || assistantStep >= 4}>Envoyer <ArrowUpRight size={15}/></button>
+                  </div>
+                </div>
               </form>
             </article>
             <article className="panel progress-panel">
