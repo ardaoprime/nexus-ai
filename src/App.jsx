@@ -243,7 +243,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = (siteName.trim() || 'mon-site').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9-]+/g, '-') + '.html';
+    link.download = (siteName.trim() || 'mon-site').toLowerCase().replace(/[^a-z0-9-]+/g, '-') + '.html';
     document.body.appendChild(link);
     link.click();
     link.remove();
