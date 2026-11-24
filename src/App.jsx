@@ -33,26 +33,67 @@ function escapeHtml(value = '') {
 
 function buildWebsiteHtml(name, description, color) {
   const safeName = escapeHtml(name || 'Mon projet');
-  const safeDescription = escapeHtml(description || 'Une solution simple, pensée pour vous.');
+  const safeDescription = escapeHtml(description || 'Découvrez notre univers et notre offre.');
   const safeColor = /^#[0-9a-f]{6}$/i.test(color) ? color : '#8068e9';
+  const text = (description || '').toLowerCase();
+  let category = {
+    label: 'NOTRE UNIVERS',
+    heading: 'Une idée qui devient une expérience',
+    cards: [
+      ['Une offre claire', 'Découvrez ce que nous proposons et comment cela peut vous aider.'],
+      ['Pensé pour vous', 'Une expérience imaginée autour de vos besoins et de vos envies.'],
+      ['Passons à la suite', 'Contactez-nous pour poser vos questions et découvrir le projet.']
+    ],
+    cta: 'Nous contacter'
+  };
+  if (/vêtement|vetement|mode|streetwear|marque|habit|collection|textile/.test(text)) category = {
+    label:'LA COLLECTION', heading:'Affirme ton style.', cards:[
+      ['Nos essentiels','Des pièces pensées pour accompagner ton style au quotidien.'],
+      ['Notre identité','Une marque avec son univers, ses inspirations et son caractère.'],
+      ['La prochaine collection','Découvre les nouveautés et les pièces à venir.']
+    ], cta:'Découvrir la collection'
+  };
+  else if (/sport|fitness|muscul|coach|entraî|entrain|boxe/.test(text)) category = {
+    label:'BOUGE À TON RYTHME', heading:'Progresse avec un accompagnement adapté.', cards:[
+      ['Un objectif clair','Des solutions pensées pour t’aider à avancer à ton rythme.'],
+      ['Un accompagnement','Des conseils et un suivi centrés sur tes besoins.'],
+      ['Passe à l’action','Présente ton objectif et découvre comment commencer.']
+    ], cta:'Découvrir nos services'
+  };
+  else if (/application|appli|logiciel|saas|technolog|numérique|numerique|ia |intelligence artificielle/.test(text)) category = {
+    label:'UNE SOLUTION PLUS SIMPLE', heading:'La technologie au service de tes idées.', cards:[
+      ['Simple à utiliser','Une expérience claire pour aller directement à l’essentiel.'],
+      ['Les fonctionnalités','Présente les outils qui rendent ton quotidien plus facile.'],
+      ['Conçu pour évoluer','Une solution qui peut grandir avec les besoins de ses utilisateurs.']
+    ], cta:'Explorer la solution'
+  };
+  else if (/restaurant|café|cafe|food|cuisine|pâtisserie|patisserie|traiteur/.test(text)) category = {
+    label:'NOTRE SAVOIR-FAIRE', heading:'Le goût des bonnes choses.', cards:[
+      ['Notre carte','Présente les plats, produits ou créations de la maison.'],
+      ['Des produits choisis','Mets en avant les ingrédients et la qualité de ton savoir-faire.'],
+      ['Nous rendre visite','Ajoute ici les horaires et les informations pratiques de ton établissement.']
+    ], cta:'Voir notre offre'
+  };
+  else if (/jeu vidéo|jeux vidéo|gaming|jeu mobile|game/.test(text)) category = {
+    label:'ENTRE DANS LE JEU', heading:'Une nouvelle expérience à découvrir.', cards:[
+      ['Le concept','Explique ce qui rend ton jeu différent et amusant.'],
+      ['Les fonctionnalités','Présente les modes, univers et possibilités du jeu.'],
+      ['Suivre le projet','Partage les nouveautés et les prochaines étapes du développement.']
+    ], cta:'Découvrir le projet'
+  };
+  const cards = category.cards.map(([title, body]) => `<article class="card"><span class="card-number">0${category.cards.findIndex(x=>x[0]===title)+1}</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`).join('');
   return `<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="${safeDescription}">
-<title>${safeName}</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="${safeDescription}"><meta name="theme-color" content="${safeColor}"><title>${safeName}</title>
 <style>
-:root{--accent:${safeColor};font-family:Inter,Arial,sans-serif;color:#182033;background:#f7f8fc}
-*{box-sizing:border-box}body{margin:0}header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 max(6vw,22px);background:white;border-bottom:1px solid #e9ebf2}header strong{font-size:20px}header a,.button{color:white;background:var(--accent);padding:12px 19px;border-radius:9px;text-decoration:none;font-weight:700;font-size:14px}
-.hero{padding:100px 22px;text-align:center;background:linear-gradient(135deg,#f0edff,#fff);}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:2px;font-size:12px}.hero h1{font-size:clamp(38px,7vw,68px);line-height:1.05;max-width:850px;margin:18px auto}.hero p{font-size:18px;line-height:1.7;color:#657087;max-width:650px;margin:0 auto 28px}.section{max-width:1050px;margin:auto;padding:75px 22px}.section h2{text-align:center;font-size:32px;margin:0 0 14px}.lead{text-align:center;color:#657087;line-height:1.7;max-width:700px;margin:0 auto 34px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:white;border:1px solid #e8eaf1;border-radius:16px;padding:25px;box-shadow:0 12px 35px #1820330a}.card h3{margin:0 0 10px}.card p{color:#657087;line-height:1.7;margin:0}footer{text-align:center;background:#151a2b;color:#c7cbe0;padding:28px;font-size:13px}
-@media(max-width:700px){header{height:65px}.hero{padding:75px 20px}.cards{grid-template-columns:1fr}.section{padding:55px 20px}}
-</style></head>
-<body>
+:root{--accent:${safeColor};font-family:Inter,Arial,sans-serif;color:#172033;background:#fff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}header{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 max(6vw,22px);background:#fff;border-bottom:1px solid #eceef3;position:sticky;top:0}header strong{font-size:21px;letter-spacing:-.7px}header a,.button{color:#fff;background:var(--accent);padding:13px 20px;border-radius:9px;text-decoration:none;font-weight:700;font-size:14px}.hero{padding:clamp(75px,12vw,145px) 22px;text-align:center;background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--accent) 15%,white),#fff 65%)}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:2px;font-size:11px}.hero h1{font-size:clamp(42px,8vw,82px);line-height:1.02;letter-spacing:-3px;max-width:950px;margin:20px auto}.hero p{font-size:18px;line-height:1.8;color:#687287;max-width:700px;margin:0 auto 30px}.section{max-width:1120px;margin:auto;padding:85px 22px}.section h2{text-align:center;font-size:clamp(28px,4vw,42px);letter-spacing:-1.5px;margin:0 0 12px}.lead{text-align:center;color:#687287;line-height:1.8;max-width:720px;margin:0 auto 42px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:#fff;border:1px solid #e8eaf0;border-radius:17px;padding:28px;box-shadow:0 15px 45px #1720330a}.card-number{display:grid;place-items:center;width:35px;height:35px;border-radius:10px;background:color-mix(in srgb,var(--accent) 13%,white);color:var(--accent);font-weight:800;font-size:12px}.card h3{font-size:19px;margin:22px 0 10px}.card p{color:#687287;line-height:1.8;margin:0}.contact{background:#151a2b;color:white;text-align:center;padding:75px 22px}.contact h2{font-size:clamp(28px,4vw,42px);margin:0 0 12px}.contact p{color:#c4c9d7;margin:0 auto 25px;line-height:1.7;max-width:600px}.contact a{display:inline-block;color:#fff;background:var(--accent);padding:13px 20px;border-radius:9px;text-decoration:none;font-weight:700}footer{text-align:center;color:#7b8292;padding:25px;font-size:13px}
+@media(max-width:700px){header{height:68px}.hero h1{letter-spacing:-1.5px}.cards{grid-template-columns:1fr}.section{padding:60px 20px}.card{padding:23px}}
+</style></head><body>
 <header><strong>${safeName}</strong><a href="#offre">Découvrir</a></header>
-<main><section class="hero"><div class="eyebrow">BIENVENUE CHEZ ${safeName.toUpperCase()}</div><h1>${safeName}</h1><p>${safeDescription}</p><a class="button" href="#offre">En savoir plus</a></section>
-<section class="section" id="offre"><h2>Une solution faite pour vous</h2><p class="lead">${safeDescription}</p><div class="cards"><article class="card"><h3>Simple</h3><p>Une expérience claire, facile à comprendre et à utiliser.</p></article><article class="card"><h3>Adapté à vos besoins</h3><p>Une approche centrée sur ce qui compte vraiment pour vous.</p></article><article class="card"><h3>Prêt à commencer</h3><p>Découvrez notre projet et prenez contact pour en savoir plus.</p></article></div></section></main>
-<footer>© ${new Date().getFullYear()} ${safeName} · Site créé avec NEXUS AI</footer>
-</body></html>`;
+<main><section class="hero"><div class="eyebrow">${escapeHtml(category.label)}</div><h1>${safeName}</h1><p>${safeDescription}</p><a class="button" href="#offre">${escapeHtml(category.cta)}</a></section>
+<section class="section" id="offre"><h2>${escapeHtml(category.heading)}</h2><p class="lead">${safeDescription}</p><div class="cards">${cards}</div></section>
+<section class="contact" id="contact"><h2>Un projet en tête ?</h2><p>Tu souhaites en savoir plus sur ${safeName} ? Retrouve ici les prochaines informations et les moyens de prendre contact.</p><a href="mailto:contact@example.com?subject=${encodeURIComponent('Contact - '+(name||'Mon projet'))}">Nous écrire</a></section></main>
+<footer>© ${new Date().getFullYear()} ${safeName} · Site créé avec NEXUS AI</footer></body></html>`;
 }
 
 function App() {
@@ -67,8 +108,8 @@ function App() {
   const [marketCustomer, setMarketCustomer] = useState('');
   const [marketProblem, setMarketProblem] = useState('');
   const [marketNotes, setMarketNotes] = useState('');
-  const [siteName, setSiteName] = useState('Mon projet');
-  const [siteDescription, setSiteDescription] = useState('Une solution simple pour répondre à vos besoins.');
+  const [siteName, setSiteName] = useState('');
+  const [siteDescription, setSiteDescription] = useState('');
   const [siteColor, setSiteColor] = useState('#8068e9');
   const [siteGenerated, setSiteGenerated] = useState(false);
   const [sitePrompt, setSitePrompt] = useState('');
@@ -187,10 +228,9 @@ function App() {
   );
 
   const generateAndDownloadSite = () => {
-    const description = sitePrompt.trim() || siteDescription;
-    const name = siteName.trim() && siteName !== 'Mon projet'
-      ? siteName.trim()
-      : 'Mon projet';
+    const description = sitePrompt.trim();
+    if (!description) return;
+    const name = siteName.trim() || 'Mon projet';
     const html = buildWebsiteHtml(name, description, siteColor);
     setSiteDescription(description);
     setGeneratedSiteHtml(html);
@@ -203,7 +243,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = (siteName.trim() || 'mon-site').toLowerCase().replace(/[^a-z0-9-]+/g, '-') + '.html';
+    link.download = (siteName.trim() || 'mon-site').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9-]+/g, '-') + '.html';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -212,29 +252,28 @@ function App() {
 
   const Website = () => (
     <>
-      <PageTitle eyebrow="CRÉATION AUTOMATIQUE" title="Crée ton site en 1 clic" subtitle="Décris ton activité en une phrase. NEXUS prépare une vraie page web que tu peux télécharger."/>
+      <PageTitle eyebrow="CRÉATION AUTOMATIQUE" title="Crée ton site en un clic" subtitle="Décris ton activité. NEXUS construit une première page adaptée à ton projet."/>
       <div className="work-grid website-grid">
         <section className="panel form-panel">
-          <h3><WandSparkles size={18}/> Ton site, automatiquement</h3>
-          <label htmlFor="sitePrompt">Que veux-tu présenter ?</label>
-          <textarea id="sitePrompt" className="field" rows="3" value={sitePrompt} onChange={e=>{setSitePrompt(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Ex. Une marque de vêtements streetwear pour les jeunes..."/>
-          <p className="disclaimer">Une seule phrase suffit. NEXUS crée une première version avec une présentation et trois blocs de contenu.</p>
-          <label htmlFor="siteName">Nom du site <span className="muted">(facultatif)</span></label>
-          <input id="siteName" className="field" value={siteName} onChange={e=>{setSiteName(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Mon projet"/>
-          <label>Couleur principale</label>
+          <h3><WandSparkles size={18}/> Ton site, simplement</h3>
+          <label htmlFor="sitePrompt">Décris ton activité en quelques mots</label>
+          <textarea id="sitePrompt" className="field" rows="4" value={sitePrompt} onChange={e=>{setSitePrompt(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Ex. Une marque de vêtements streetwear avec des collections modernes et accessibles..."/>
+          <label htmlFor="siteName">Nom de ton projet <span className="muted">(facultatif)</span></label>
+          <input id="siteName" className="field" value={siteName} onChange={e=>{setSiteName(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Ex. Nova Studio"/>
+          <label>Couleur du site</label>
           <div className="color-row"><input type="color" value={siteColor} onChange={e=>{setSiteColor(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}}/><span>{siteColor.toUpperCase()}</span></div>
           <button className="primary-button" onClick={generateAndDownloadSite} disabled={!sitePrompt.trim()}><WandSparkles size={16}/> Générer mon site</button>
-          {siteGenerated&&<button className="secondary-button" onClick={downloadWebsite}><Download size={15}/> Télécharger mon site (.html)</button>}
-          <p className="disclaimer">Le fichier téléchargé est un vrai site web autonome. Pour le rendre accessible à tous, il faudra ensuite le publier sur un hébergeur.</p>
+          {siteGenerated&&<button className="secondary-button" onClick={downloadWebsite}><Download size={15}/> Télécharger le site</button>}
+          <p className="disclaimer">NEXUS adapte la structure et les textes au type d’activité décrit. Le téléchargement fournit un vrai fichier de site web. La publication en ligne viendra ensuite.</p>
         </section>
         <section className="panel preview-panel">
-          <div className="preview-toolbar"><span><Eye size={15}/> APERÇU DU SITE</span><span className="preview-dot">{siteGenerated?'● Généré':'● Brouillon'}</span></div>
+          <div className="preview-toolbar"><span><Eye size={15}/> APERÇU DU SITE</span><span className="preview-dot">{siteGenerated?'● Généré':'● Aperçu'}</span></div>
           <div className="site-preview">
-            <div className="site-nav"><b>{siteName||'Mon projet'}</b><span>Accueil　 À propos　 Contact</span></div>
-            <div className="site-hero" style={{'--site-accent':siteColor}}><span>BIENVENUE</span><h2>{siteName||'Mon projet'}</h2><p>{sitePrompt||siteDescription}</p><a className="site-preview-link" href="#site-feature">Découvrir</a></div>
-            <div className="site-feature" id="site-feature"><h3>Une solution pensée pour vous</h3><p>Une présentation claire de ton activité.</p></div>
+            <div className="site-nav"><b>{siteName.trim()||'Nom de ton projet'}</b><span>Accueil　 Offre　 Contact</span></div>
+            <div className="site-hero" style={{'--site-accent':siteColor}}><span>{sitePrompt?'TON PROJET':'APERÇU'}</span><h2>{siteName.trim()||'Ton projet'}</h2><p>{sitePrompt||'Ta description apparaîtra ici dès que tu auras présenté ton activité.'}</p><a className="site-preview-link" href="#site-feature">Découvrir</a></div>
+            <div className="site-feature" id="site-feature"><h3>{sitePrompt?'Une offre pensée autour de ton idée':'Les points forts de ton projet'}</h3><p>{sitePrompt||'Les informations de ton site apparaîtront ici.'}</p></div>
           </div>
-          <div className="preview-footer">{siteGenerated?'Ton site a été généré. Télécharge le fichier pour le conserver.':'Écris une phrase puis clique sur Générer mon site.'}</div>
+          <div className="preview-footer">{siteGenerated?'Ton site est prêt à être téléchargé.':'La prévisualisation évolue pendant que tu écris.'}</div>
         </section>
       </div>
     </>
@@ -276,16 +315,16 @@ function App() {
 
   const renderPage = () => {
     switch(active) {
-      case 'Trouver une idée': return <Ideas/>;
-      case 'Étude de marché': return <Market/>;
-      case 'Créer mon site': return <Website/>;
-      case 'Marketing': return <Marketing/>;
-      case 'Finances': return <Finance/>;
-      case 'Paramètres': return <SettingsPage/>;
-      case 'Aide & support': return <Support/>;
-      case 'Mon compte': return <Account/>;
-      case 'Découvrir': return <Discover/>;
-      default: return <Dashboard/>;
+      case 'Trouver une idée': return Ideas();
+      case 'Étude de marché': return Market();
+      case 'Créer mon site': return Website();
+      case 'Marketing': return Marketing();
+      case 'Finances': return Finance();
+      case 'Paramètres': return SettingsPage();
+      case 'Aide & support': return Support();
+      case 'Mon compte': return Account();
+      case 'Découvrir': return Discover();
+      default: return Dashboard();
     }
   };
 
@@ -300,7 +339,7 @@ function App() {
       <button className="profile-row" onClick={()=>go('Mon compte')}><div className="profile-avatar">A</div><div><b>Mon compte</b><small>Plan Starter</small></div><ChevronDown size={15}/></button></div>
     </aside>
     {mobileNav&&<button className="backdrop" aria-label="Fermer le menu" onClick={()=>setMobileNav(false)}/>}
-    <main className="main-area"><Header/><div className="content">{renderPage()}<footer>© 2026 NEXUS AI <span>•</span> Conçu pour transformer les idées en projets concrets.</footer></div></main>
+    <main className="main-area">{Header()}<div className="content">{renderPage()}<footer>© 2026 NEXUS AI <span>•</span> Conçu pour transformer les idées en projets concrets.</footer></div></main>
   </div>;
 }
 
