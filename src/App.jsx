@@ -217,13 +217,13 @@ function App() {
         <section className="panel form-panel">
           <h3><WandSparkles size={18}/> Ton site, automatiquement</h3>
           <label htmlFor="sitePrompt">Que veux-tu présenter ?</label>
-          <textarea id="sitePrompt" className="field" rows="3" value={sitePrompt} onChange={e=>setSitePrompt(e.target.value)} placeholder="Ex. Une marque de vêtements streetwear pour les jeunes..."/>
+          <textarea id="sitePrompt" className="field" rows="3" value={sitePrompt} onChange={e=>{setSitePrompt(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Ex. Une marque de vêtements streetwear pour les jeunes..."/>
           <p className="disclaimer">Une seule phrase suffit. NEXUS crée une première version avec une présentation et trois blocs de contenu.</p>
           <label htmlFor="siteName">Nom du site <span className="muted">(facultatif)</span></label>
-          <input id="siteName" className="field" value={siteName} onChange={e=>setSiteName(e.target.value)} placeholder="Mon projet"/>
+          <input id="siteName" className="field" value={siteName} onChange={e=>{setSiteName(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}} placeholder="Mon projet"/>
           <label>Couleur principale</label>
-          <div className="color-row"><input type="color" value={siteColor} onChange={e=>setSiteColor(e.target.value)}/><span>{siteColor.toUpperCase()}</span></div>
-          <button className="primary-button" onClick={generateAndDownloadSite} disabled={!sitePrompt.trim()&&!siteDescription.trim()}><WandSparkles size={16}/> Générer mon site</button>
+          <div className="color-row"><input type="color" value={siteColor} onChange={e=>{setSiteColor(e.target.value);setSiteGenerated(false);setGeneratedSiteHtml('')}}/><span>{siteColor.toUpperCase()}</span></div>
+          <button className="primary-button" onClick={generateAndDownloadSite} disabled={!sitePrompt.trim()}><WandSparkles size={16}/> Générer mon site</button>
           {siteGenerated&&<button className="secondary-button" onClick={downloadWebsite}><Download size={15}/> Télécharger mon site (.html)</button>}
           <p className="disclaimer">Le fichier téléchargé est un vrai site web autonome. Pour le rendre accessible à tous, il faudra ensuite le publier sur un hébergeur.</p>
         </section>
@@ -231,8 +231,8 @@ function App() {
           <div className="preview-toolbar"><span><Eye size={15}/> APERÇU DU SITE</span><span className="preview-dot">{siteGenerated?'● Généré':'● Brouillon'}</span></div>
           <div className="site-preview">
             <div className="site-nav"><b>{siteName||'Mon projet'}</b><span>Accueil　 À propos　 Contact</span></div>
-            <div className="site-hero" style={{'--site-accent':siteColor}}><span>BIENVENUE</span><h2>{siteName||'Mon projet'}</h2><p>{sitePrompt||siteDescription}</p><button type="button">Découvrir</button></div>
-            <div className="site-feature"><h3>Une solution pensée pour vous</h3><p>Une présentation claire de ton activité.</p></div>
+            <div className="site-hero" style={{'--site-accent':siteColor}}><span>BIENVENUE</span><h2>{siteName||'Mon projet'}</h2><p>{sitePrompt||siteDescription}</p><a className="site-preview-link" href="#site-feature">Découvrir</a></div>
+            <div className="site-feature" id="site-feature"><h3>Une solution pensée pour vous</h3><p>Une présentation claire de ton activité.</p></div>
           </div>
           <div className="preview-footer">{siteGenerated?'Ton site a été généré. Télécharge le fichier pour le conserver.':'Écris une phrase puis clique sur Générer mon site.'}</div>
         </section>
