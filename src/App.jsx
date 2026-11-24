@@ -24,6 +24,37 @@ const quickActions = [
   { icon: ChartNoAxesCombined, title: 'Suivre mes finances', desc: 'Organise tes revenus et tes dépenses.', tone: 'green', target: 'Finances' },
 ];
 
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[char]));
+}
+
+function buildWebsiteHtml(name, description, color) {
+  const safeName = escapeHtml(name || 'Mon projet');
+  const safeDescription = escapeHtml(description || 'Une solution simple, pensée pour vous.');
+  const safeColor = /^#[0-9a-f]{6}$/i.test(color) ? color : '#8068e9';
+  return `<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="${safeDescription}">
+<title>${safeName}</title>
+<style>
+:root{--accent:${safeColor};font-family:Inter,Arial,sans-serif;color:#182033;background:#f7f8fc}
+*{box-sizing:border-box}body{margin:0}header{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 max(6vw,22px);background:white;border-bottom:1px solid #e9ebf2}header strong{font-size:20px}header a,.button{color:white;background:var(--accent);padding:12px 19px;border-radius:9px;text-decoration:none;font-weight:700;font-size:14px}
+.hero{padding:100px 22px;text-align:center;background:linear-gradient(135deg,#f0edff,#fff);}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:2px;font-size:12px}.hero h1{font-size:clamp(38px,7vw,68px);line-height:1.05;max-width:850px;margin:18px auto}.hero p{font-size:18px;line-height:1.7;color:#657087;max-width:650px;margin:0 auto 28px}.section{max-width:1050px;margin:auto;padding:75px 22px}.section h2{text-align:center;font-size:32px;margin:0 0 14px}.lead{text-align:center;color:#657087;line-height:1.7;max-width:700px;margin:0 auto 34px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:white;border:1px solid #e8eaf1;border-radius:16px;padding:25px;box-shadow:0 12px 35px #1820330a}.card h3{margin:0 0 10px}.card p{color:#657087;line-height:1.7;margin:0}footer{text-align:center;background:#151a2b;color:#c7cbe0;padding:28px;font-size:13px}
+@media(max-width:700px){header{height:65px}.hero{padding:75px 20px}.cards{grid-template-columns:1fr}.section{padding:55px 20px}}
+</style></head>
+<body>
+<header><strong>${safeName}</strong><a href="#offre">Découvrir</a></header>
+<main><section class="hero"><div class="eyebrow">BIENVENUE CHEZ ${safeName.toUpperCase()}</div><h1>${safeName}</h1><p>${safeDescription}</p><a class="button" href="#offre">En savoir plus</a></section>
+<section class="section" id="offre"><h2>Une solution faite pour vous</h2><p class="lead">${safeDescription}</p><div class="cards"><article class="card"><h3>Simple</h3><p>Une expérience claire, facile à comprendre et à utiliser.</p></article><article class="card"><h3>Adapté à vos besoins</h3><p>Une approche centrée sur ce qui compte vraiment pour vous.</p></article><article class="card"><h3>Prêt à commencer</h3><p>Découvrez notre projet et prenez contact pour en savoir plus.</p></article></div></section></main>
+<footer>© ${new Date().getFullYear()} ${safeName} · Site créé avec NEXUS AI</footer>
+</body></html>`;
+}
+
 function App() {
   const [active, setActive] = useState('Vue d’ensemble');
   const [mobileNav, setMobileNav] = useState(false);
@@ -40,6 +71,8 @@ function App() {
   const [siteDescription, setSiteDescription] = useState('Une solution simple pour répondre à vos besoins.');
   const [siteColor, setSiteColor] = useState('#8068e9');
   const [siteGenerated, setSiteGenerated] = useState(false);
+  const [sitePrompt, setSitePrompt] = useState('');
+  const [generatedSiteHtml, setGeneratedSiteHtml] = useState('');
   const [marketingGoal, setMarketingGoal] = useState('Trouver mes premiers clients');
   const [marketingAudience, setMarketingAudience] = useState('');
   const [marketingChannel, setMarketingChannel] = useState('Réseaux sociaux');
@@ -153,14 +186,59 @@ function App() {
     </>
   );
 
+  const generateAndDownloadSite = () => {
+    const description = sitePrompt.trim() || siteDescription;
+    const name = siteName.trim() && siteName !== 'Mon projet'
+      ? siteName.trim()
+      : 'Mon projet';
+    const html = buildWebsiteHtml(name, description, siteColor);
+    setSiteDescription(description);
+    setGeneratedSiteHtml(html);
+    setSiteGenerated(true);
+  };
+
+  const downloadWebsite = () => {
+    if (!generatedSiteHtml) return;
+    const blob = new Blob([generatedSiteHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = (siteName.trim() || 'mon-site').toLowerCase().replace(/[^a-z0-9-]+/g, '-') + '.html';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const Website = () => (
     <>
-      <PageTitle eyebrow="CONSTRUCTION • 03" title="Créer mon site" subtitle="Prépare le contenu et visualise une première maquette de ton site."/>
-      <div className="work-grid website-grid"><section className="panel form-panel"><h3><Globe2 size={18}/> Personnalise ton site</h3><label htmlFor="siteName">Nom du projet</label><input id="siteName" className="field" value={siteName} onChange={e=>setSiteName(e.target.value)}/><label htmlFor="siteDescription">Présente ton activité</label><textarea id="siteDescription" className="field" rows="4" value={siteDescription} onChange={e=>setSiteDescription(e.target.value)}/><label>Couleur principale</label><div className="color-row"><input type="color" value={siteColor} onChange={e=>setSiteColor(e.target.value)}/><span>{siteColor.toUpperCase()}</span></div><button className="primary-button" onClick={()=>setSiteGenerated(true)}><WandSparkles size={16}/> Mettre à jour l’aperçu</button><p className="disclaimer">Cette étape crée une maquette visuelle dans NEXUS, pas encore un site publié sur Internet.</p></section>
-      <section className="panel preview-panel"><div className="preview-toolbar"><span><Eye size={15}/> APERÇU DU SITE</span><span className="preview-dot">● Brouillon</span></div><div className="site-preview"><div className="site-nav"><b>{siteName||'Mon projet'}</b><span>Accueil　 À propos　 Contact</span></div><div className="site-hero" style={{'--site-accent':siteColor}}><span>BIENVENUE</span><h2>{siteName||'Mon projet'}</h2><p>{siteDescription||'La présentation de ton activité apparaîtra ici.'}</p><button>Découvrir</button></div><div className="site-feature"><h3>Une solution pensée pour vous</h3><p>Présente ici les avantages de ton produit ou service.</p></div></div><div className="preview-footer">La maquette se met à jour avec tes modifications.</div></section></div>
+      <PageTitle eyebrow="CRÉATION AUTOMATIQUE" title="Crée ton site en 1 clic" subtitle="Décris ton activité en une phrase. NEXUS prépare une vraie page web que tu peux télécharger."/>
+      <div className="work-grid website-grid">
+        <section className="panel form-panel">
+          <h3><WandSparkles size={18}/> Ton site, automatiquement</h3>
+          <label htmlFor="sitePrompt">Que veux-tu présenter ?</label>
+          <textarea id="sitePrompt" className="field" rows="3" value={sitePrompt} onChange={e=>setSitePrompt(e.target.value)} placeholder="Ex. Une marque de vêtements streetwear pour les jeunes..."/>
+          <p className="disclaimer">Une seule phrase suffit. NEXUS crée une première version avec une présentation et trois blocs de contenu.</p>
+          <label htmlFor="siteName">Nom du site <span className="muted">(facultatif)</span></label>
+          <input id="siteName" className="field" value={siteName} onChange={e=>setSiteName(e.target.value)} placeholder="Mon projet"/>
+          <label>Couleur principale</label>
+          <div className="color-row"><input type="color" value={siteColor} onChange={e=>setSiteColor(e.target.value)}/><span>{siteColor.toUpperCase()}</span></div>
+          <button className="primary-button" onClick={generateAndDownloadSite} disabled={!sitePrompt.trim()&&!siteDescription.trim()}><WandSparkles size={16}/> Générer mon site</button>
+          {siteGenerated&&<button className="secondary-button" onClick={downloadWebsite}><Download size={15}/> Télécharger mon site (.html)</button>}
+          <p className="disclaimer">Le fichier téléchargé est un vrai site web autonome. Pour le rendre accessible à tous, il faudra ensuite le publier sur un hébergeur.</p>
+        </section>
+        <section className="panel preview-panel">
+          <div className="preview-toolbar"><span><Eye size={15}/> APERÇU DU SITE</span><span className="preview-dot">{siteGenerated?'● Généré':'● Brouillon'}</span></div>
+          <div className="site-preview">
+            <div className="site-nav"><b>{siteName||'Mon projet'}</b><span>Accueil　 À propos　 Contact</span></div>
+            <div className="site-hero" style={{'--site-accent':siteColor}}><span>BIENVENUE</span><h2>{siteName||'Mon projet'}</h2><p>{sitePrompt||siteDescription}</p><button type="button">Découvrir</button></div>
+            <div className="site-feature"><h3>Une solution pensée pour vous</h3><p>Une présentation claire de ton activité.</p></div>
+          </div>
+          <div className="preview-footer">{siteGenerated?'Ton site a été généré. Télécharge le fichier pour le conserver.':'Écris une phrase puis clique sur Générer mon site.'}</div>
+        </section>
+      </div>
     </>
   );
-
   const Marketing = () => (
     <>
       <PageTitle eyebrow="ACQUISITION • 04" title="Marketing" subtitle="Prépare une stratégie simple pour faire connaître ton projet sans dépenser inutilement."/>
